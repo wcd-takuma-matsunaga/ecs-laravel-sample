@@ -1,0 +1,69 @@
+version: '3.8'
+networks:
+  backend:
+    name: sample-backend
+services:
+  nginx:
+    container_name: sample-backend.nginx
+    build:
+      context: ../../docker/nginx
+      target: local
+    image: sample-backend/nginx
+    ports:
+      - ${WEB_PORT}:80
+    volumes:
+      - ../../src:/var/www:cached
+    depends_on:
+      - php-fpm
+    networks:
+      - backend
+  php-fpm:
+    container_name: sample-backend.php-fpm
+    build:
+      context: ../../docker/php-fpm
+      target: local
+    image: sample-backend/php-fpm
+    volumes:
+      - ../../src:/var/www:cached
+    environment:
+      TZ: "Asia/Tokyo"
+    networks:
+      - backend
+  mysql:
+    container_name: sample-backend.mysql
+    image: mysql/mysql-server:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_USER: default
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: db
+      TZ: "Asia/Tokyo"
+    ports:
+      - 3307:3306
+#    volumes:
+#      - ./mysql/data:/var/lib/mysql
+    networks:
+      - backend
+  minio:
+    container_name: ${COMPOSE_PROJECT_NAME}.minio
+    image: minio/minio
+    environment:
+      MINIO_ROOT_USER: asdfghASDFGH
+      MINIO_ROOT_PASSWORD: asdfgh123456
+    entrypoint: bash
+    command: -c "/opt/bin/minio server /data --address :9000 --console-address :9001"
+    volumes:
+      - ./s3/data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - backend
+  mailhog:
+    container_name: ${COMPOSE_PROJECT_NAME}.mailhog
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - backend

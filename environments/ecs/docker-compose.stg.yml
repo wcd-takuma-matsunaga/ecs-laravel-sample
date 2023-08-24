@@ -1,0 +1,26 @@
+version: '3.8'
+volumes:
+  data:
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: ./docker/app/Dockerfile
+    image: app
+    environment:
+      TZ: "Asia/Tokyo"
+  nginx:
+    build:
+      context: ../../docker/nginx
+      target: stg
+    image: nginx
+    environment:
+      TZ: "Asia/Tokyo"
+  # buildの速度をあげるならphp-fpmのベースを作って設定ファイルだけコピーするようにする。
+  php-fpm:
+    build:
+      context: ../../docker/php-fpm
+      target: production
+    image: php-fpm
+    environment:
+      TZ: "Asia/Tokyo"

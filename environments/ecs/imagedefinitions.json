@@ -1,0 +1,14 @@
+[
+  {
+    "name": "nginx",
+    "imageUri": ""
+  },
+  {
+    "name": "php-fpm",
+    "imageUri": ""
+  },
+  {
+    "name": "app",
+    "imageUri": ""
+  }
+]

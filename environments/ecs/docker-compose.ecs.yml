@@ -1,0 +1,32 @@
+version: '3.8'
+volumes:
+  app:
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: ./docker/app/Dockerfile
+    image: laravel-app
+    environment:
+      TZ: "Asia/Tokyo"
+  nginx:
+    build:
+      context: ../../docker/nginx
+      target: dev
+    image: laravel-nginx
+    volumes_from:
+      - app
+    environment:
+      TZ: "Asia/Tokyo"
+    ports:
+      - 8081:80
+  # buildの速度をあげるならphp-fpmのベースを作って設定ファイルだけコピーするようにする。
+  php-fpm:
+    build:
+      context: ../../docker/php-fpm
+      target: dev
+    image: laravel-php-fpm
+    environment:
+      TZ: "Asia/Tokyo"
+    volumes_from:
+      - app

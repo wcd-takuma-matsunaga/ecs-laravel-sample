@@ -1,0 +1,31 @@
+name: Laravel 
+
+on: [pull_request]
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./src
+
+jobs:
+  php-cs-fixer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache vendor
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ./tools/php-cs-fixer/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('tools/php-cs-fixer/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Composer install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: composer install -n --working-dir=tools/php-cs-fixer
+
+      - name: php-cs-fixer
+        run: ./tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php ./ --dry-run
